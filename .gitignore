@@ -80,9 +80,6 @@ Thumbs.db
 /src/common/obj_sql
 /src/common/version.hpp
 
-# /src/custom/
-/src/custom
-
 # /src/login/
 /src/login/Makefile
 /src/login/obj_sql
