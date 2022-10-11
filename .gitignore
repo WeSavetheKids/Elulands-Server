@@ -61,7 +61,7 @@ Thumbs.db
 /3rdparty/httplib/obj
 
 # /db/
-/db/import
+# /db/import
 
 # /conf/
 /conf/import
@@ -147,3 +147,5 @@ Thumbs.db
 
 # generated files
 generated
+
+*.patch
