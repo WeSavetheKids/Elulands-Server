@@ -1,0 +1,246 @@
+
+/*
+	Após criar as informações da planta na função (no final do arquivo) você deve usar 'callfunc "plant_sys",x,item_id; ' onde o X seria o id da planta que vc criou lá em baixo e o item_id que chamou a função!
+*/
+
+//Func Main
+function	script	plant_sys	{
+
+	set .@pID,getarg(0);
+	set .@item,getarg(1);
+	set .@cName$,strcharinfo(0);
+	set .@cID,getcharid(0);	
+
+	getmapxy(.@map$,.@x,.@y,BL_PC);
+	set .@y,.@y-1;
+	
+	query_sql "SELECT `plant_id` FROM `plant_sys` WHERE `map`='"+.@map$+"' AND `x`="+.@x+" AND `y`="+.@y+"",.@ccheck;
+	
+	if(.@ccheck)
+	{ announce "[Plant System]: Já existe uma planta aqui!",bc_self; getitem .@item,1; end; }
+	
+	mes "Você deseja plantar aqui?";
+	if(select("Sim:Não")==2){ getitem .@item,1; close; }
+ 	close2;	
+	query_sql "SELECT COUNT(`char_id`) FROM `plant_sys` WHERE `char_id`="+.@cid+"",.@rst;
+	
+	if(.@rst)
+	{
+		for(set .@i,0; .@i<=.@rst; set .@i,.@i+1)
+		{
+			query_sql "SELECT `plant_ord` FROM `plant_sys` WHERE `char_id`="+.@cid+" ORDER BY `plant_ord` ASC",.@irst;			
+			if(.@irst[.@i] != .@i && .@chk < 1){ set .@rst,.@i; set .@chk,1;  }
+		}
+	}
+	
+	set .@PlantInfo,explode(.@PlantVal$, callfunc("plant_type",.@pID),",");
+	
+	if(.@PlantVal$[3] == "null"){ dispbottom "[Plant System]: PlantID: "+.@pID+" - Stage: 1 - SpriteID: "+.@PlantVal$[3]+"  [ NÃO EXISTE/FALHOU ]"; getitem .@item,1; end; }
+	
+	showscript "Plantando...";
+	progressbar "0xFFFFFF",1;
+	duplicatenpc("planta2", " ",""+.@rst+""+getcharid(0)+"",.@map$,.@x,.@y,DIR_SOUTH,atoi(.@PlantVal$[3]));
+	
+	set .@tTmp,(gettimetick(2)+atoi(.@PlantVal$[7]));
+	query_sql "INSERT INTO `plant_sys` (`char_id`,`name`,`map`,`x`,`y`,`plant_ord`,`plant_id`,`stage`,`time`,`finaltime`) VALUES ("+.@cid+",'"+.@cName$+"','"+.@map$+"',"+.@x+","+.@y+","+.@rst+","+.@pID+",1,"+.@tTmp+","+(gettimetick(2)+86400)+")";
+	end;
+}
+
+
+//NPC Main
+-	script	planta2	-1,{
+
+	getmapxy(.@map$, .@x, .@y, BL_NPC);
+	query_sql "SELECT COUNT(`char_id`) FROM `plant_sys` WHERE `char_id` = "+getcharid(0)+" AND `map`='"+.@map$+"' AND `x`="+.@x+" AND `y`="+.@y+"",.@rst;
+
+	if(.@rst)
+	{		
+		query_sql "SELECT `char_id`,`plant_ord`,`plant_id`,`stage`,`time` FROM `plant_sys` WHERE `char_id`="+getcharid(0)+" AND `map`='"+.@map$+"' AND `x`="+.@x+" AND `y`="+.@y+"",.@cID,.@pOrd,.@pID,.@stage,.@time;
+		
+		if(.@cID)
+		{			
+			mes "^ff0000Nome da Planta:^000000 "+$PlantName$[.@pID]+"";			
+			mes "^ff0000ID Planta:^000000 "+.@pID+" - ^ff0000Estágio:^000000 "+.@stage+"/4";		
+			mes "^ff0000ID Contagem:^000000 "+.@pOrd;
+			mes "^ff0000NPC Identificação:^000000 "+strnpcinfo(0)+"";
+			mes "^ff0000Where:^000000 "+.@map$+","+.@x+","+.@y+"";
+			mes "";			
+			set .@calcT,.@time-gettimetick(2);
+
+			mes "^ff0000"+(.@stage == 3 ? "Estágio Final:":"Próximo Estágio:")+"^000000 "+(.@calcT < 60 ? (.@calcT < 0 ? "Pronto":.@calcT+"seg"):(.@calcT/60)+"min+");
+			
+			menu (.@stage < 4 ? "Regar":"")+"",-,(.@stage == 4 ? "Cortar":"")+"",-,"ChatRoom",-,"Sair",-;
+			set .@mn,@menu;
+			set .@PlantInfo,explode(.@PlantVal$, callfunc("plant_type",.@pID),",");
+
+			switch(.@stage)
+			{
+				case 1: set .@cTime,(gettimetick(2)+atoi(.@PlantVal$[8])); 	set .@cSpr,4; set .@cStage,2; break;
+				case 2: set .@cTime,(gettimetick(2)+atoi(.@PlantVal$[9])); 	set .@cSpr,5; set .@cStage,3; break;
+				case 3: set .@cTime,(gettimetick(2)+atoi(.@PlantVal$[10]));	set .@cSpr,6; set .@cStage,4; break;
+			}
+			
+			switch(.@mn)
+			{
+				case 1:
+				case 2:
+						if(gettimetick(2) < .@time){ mes "Você ainda não pode "+(.@stage == 4 ? "cortar":"regar")+"!"; close; }
+						
+						if(.@stage < 4)
+						{
+							if(gettimetick(2) > (.@time+300))
+							{
+								clear;
+								query_sql "DELETE FROM `plant_sys` WHERE `char_id` = "+getcharid(0)+" AND `plant_ord`="+.@pOrd+" AND `plant_id`="+.@pID+" AND `map`='"+.@map$+"' AND `x`="+.@x+" AND `y`="+.@y+"";
+								mes "^ff0000A planta morreu...^000000";
+								mes "^ff0000Você precisa regar a planta dentro de 5min após o tempo de espera terminar!^000000";
+								hideonnpc strnpcinfo(0);
+								setarray $PlantSySTmP$[(getarraysize($PlantSySTmP$) ? getarraysize($PlantSySTmP$):0)],strnpcinfo(0);
+								close2;
+								deletearray $PlantSySTmP$[(inarray($PlantSySTmP$[0],strnpcinfo(0)))],1;
+								duplicateremove(strnpcinfo(0));
+								end;
+							}
+							if(countitem($Regador) < $rQtd){ mes "^FF0000* Você precisa de "+$rQtd+"x "+getitemname($Regador)+" !^000000"; close; }									
+							set .@nTmp$,strnpcinfo(0);
+							query_sql "UPDATE `plant_sys` SET `stage`="+.@cStage+",`time`="+.@cTime+" WHERE `char_id` = "+getcharid(0)+" AND `plant_ord`="+.@pOrd+" AND `plant_id`="+.@pID+" AND `map`='"+.@map$+"' AND `x`="+.@x+" AND `y`="+.@y+"";
+							delitem $Regador,$rQtd;
+							close2;
+							duplicateremove(strnpcinfo(0));
+							duplicatenpc("planta2", " ",.@nTmp$,.@map$,.@x,.@y,DIR_SOUTH,atoi(.@PlantVal$[.@cSpr]));				
+						}
+						else
+						{
+							if(getstatus(SC_WEIGHT50))
+							{ npctalk "[Colheita]: Você está acima do peso, guarde no armazem para colher os frutos."; close; }
+							else
+							{ if(select("Colher:Cancelar") == 2) { close; }}
+							
+							set .@PlantInfo,explode(.@PlantVal$, callfunc("plant_type",.@pID),",");
+							getitem atoi(.@PlantVal$[1]),($PlantGain ? rand(1,atoi(.@PlantVal$[2])):atoi(.@PlantVal$[2]));							
+							query_sql "DELETE FROM `plant_sys` WHERE `char_id` = "+getcharid(0)+" AND `plant_ord`="+.@pOrd+" AND `plant_id`="+.@pID+" AND `map`='"+.@map$+"' AND `x`="+.@x+" AND `y`="+.@y+"";							
+							mes "Coletado...!";
+							hideonnpc strnpcinfo(0);
+							setarray $PlantSySTmP$[(getarraysize($PlantSySTmP$) ? getarraysize($PlantSySTmP$):0)],strnpcinfo(0);
+							close2;
+							deletearray $PlantSySTmP$[(inarray($PlantSySTmP$[0],strnpcinfo(0)))],1;
+							duplicateremove(strnpcinfo(0));
+							end;
+						}
+						break;
+						
+				case 3:				
+						if(select("Ativar Chat:Desativar Chat")==2){ delwaitingroom strnpcinfo(0); close; }						
+						if(!getwaitingroomstate(3,strnpcinfo(0))){ mes "já está ativo!"; close; }						
+						waitingroom "[ "+strcharinfo(0)+" ]",0;						
+						close;
+			}
+			end;
+		}
+	}
+	dispbottom "Essa Planta não é sua."; end;
+}
+
+
+
+//NPC Controle de Tempo & Configurações
+-	script	Plant_Control	FAKE_NPC,{
+
+//Faz checagem a cada 10min (para verificar o tempo das plantas)
+OnTimer600000: //10min
+
+	query_sql "SELECT `char_id`,`plant_ord`,`time` FROM `plant_sys` WHERE `time` <= "+gettimetick(2)+" AND `finaltime` <= "+gettimetick(2)+"",.@cID,.@pOrd,.@pTime;
+    
+	//Plantas expiradas
+    if(getarraysize(.@cID))
+    {
+        for(set .@i,0; .@i<getarraysize(.@cID); set .@i,.@i+1)
+        {
+			query_sql "DELETE FROM `plant_sys` WHERE `char_id`="+.@cID[.@i]+" AND `plant_ord`="+.@pOrd[.@i]+" AND `time`="+.@pTime[.@i]+"";
+			duplicateremove(" #"+.@pOrd[.@i]+""+.@cID[.@i]);
+        }
+    }
+	
+	//Plantas para remover sprite em caso de bug
+	if(getarraysize($PlantSySTmP$))
+    {
+        for(set .@i,0; .@i<getarraysize($PlantSySTmP$); set .@i,.@i+1)
+        { if($PlantSySTmP$[.@i] != "") duplicateremove($PlantSySTmP$[.@i]); }
+    }
+	
+	deletearray $PlantSySTmP$[0],getarraysize($PlantSySTmP$);	
+	stopnpctimer;
+	initnpctimer;
+	end;
+	
+
+OnInit:
+
+	
+	set $Regador,523;		//ID do item que vai regar as plantas.	
+	set $rQtd,1;			//Quantidade do item que vai ser utilizado
+	set $PlantGain,1;		// 0 = ganha o valor fixo definido na função, 1 = ganha um valor aleatório definido na função
+	
+	setarray $PlantName$[1],"Planta de Maçã","Planta de Yggdrasil","Planta 3";
+	query_sql "CREATE TABLE IF NOT EXISTS `plant_sys`(`char_id` INT NOT NULL,`name` VARCHAR(30) NOT NULL,`map` VARCHAR(13) NOT NULL,`x` SMALLINT(3) NOT NULL,`y` SMALLINT(3) NOT NULL,`plant_ord` TINYINT(3) NOT NULL,`plant_id` TINYINT(3) NOT NULL,`stage` TINYINT(1) NOT NULL,`time` INT(12) NOT NULL,`finaltime` INT(13) NOT NULL)";
+
+	query_sql "SELECT `char_id`,`map`,`x`,`y`,`stage`,`plant_id`,`plant_ord`,`finaltime` FROM `plant_sys`",.@cID,.@map$,.@x,.@y,.@stage,.@pID,.@pOrd,.@pFtime;
+	
+	if(getarraysize(.@cID))
+	{
+		for(set .@i,0; .@i<getarraysize(.@cID); set .@i,.@i+1)
+		{
+			if(.@pFtime[.@i] > gettimetick(2))
+			{
+				switch(.@stage[.@i])
+				{
+					case 1: set .@cSpr,3; break;
+					case 2: set .@cSpr,4; break;
+					case 3: set .@cSpr,5; break;
+					case 4: set .@cSpr,6; break;
+				}
+				set .@PlantInfo,explode(.@PlantVal$, callfunc("plant_type",.@pID[.@i]),",");
+				
+				if(.@PlantVal$[.@cSpr] == "null"){ announce "[Plant System]: PlantID: "+.@pID[.@i]+" - Stage: "+.@cSpr+" - SpriteID: "+.@PlantVal$[.@cSpr]+"  [ NÃO EXISTE/FALHOU ]",bc_all; }
+				else
+				{ duplicatenpc("planta2"," ",""+.@pOrd[.@i]+""+.@cID[.@i],.@map$[.@i],.@x[.@i],.@y[.@i],DIR_SOUTH,atoi(.@PlantVal$[.@cSpr])); }
+			}
+			else
+			{ query_sql "DELETE FROM `plant_sys` WHERE `char_id`="+.@cID[.@i]+" AND `plant_ord`="+.@pOrd[.@i]+" AND `finaltime`="+.@pFtime[.@i]+""; }
+		}
+	}
+	
+	deletearray $PlantSySTmP$[0],getarraysize($PlantSySTmP$);
+	initnpctimer;
+	end;
+}
+
+
+
+
+// == Func que guarda os tipos de plantas e suas informações
+/*
+	val 1 = Tipo de planta (ID único)
+	var 2 = ID Item ganho ao coletar/cortar
+	val 3 = Quantidade que irá ser dado ao coletar (no script do Plant_Control deve configurar a forma que será dado essa quantidade)
+	var 4 = NPC SPRITE ID STAGE 1
+	var 5 = NPC SPRITE ID STAGE 2
+	var 6 = NPC SPRITE ID STAGE 3
+	var 7 = NPC SPRITE ID STAGE 4
+	var 8 = TEMPO EM DELAY APÓS  PLANTAR/REGAR STAGE 1
+	var 9 = TEMPO EM DELAY APÓS  PLANTAR/REGAR STAGE 2
+	var 10 = TEMPO EM DELAY APÓS PLANTAR/REGAR STAGE 3
+	var 11 = TEMPO EM DELAY APÓS PLANTAR/REGAR STAGE 4
+*/	
+function	script	plant_type	{
+
+	if(!getarg(0)) return;
+	
+	switch(getarg(0))
+	{
+		case 1: set .@PlantSet$,"1,512,100,10363,10364,10365,10366,1,1,1,1"; break;	//Planta 1 (NPC-ID-1,NPC-ID-2,NPC-ID-3)
+		case 2: set .@PlantSet$,"2,607,100,10363,10364,10365,10367,1,1,1,1"; break;	//Planta 2 (NPC-ID-1,NPC-ID-2,NPC-ID-3)
+	}
+	
+return (.@PlantSet$ != "" ? .@PlantSet$:"null");
+}

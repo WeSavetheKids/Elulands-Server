@@ -89,8 +89,79 @@ Header:
   Version: 3
 
 Body:
-# THQ Quest Items
-#=============================================================
+  - Id: 1305
+    AegisName: Cleaver
+    Name: Cleaver
+    Type: Weapon
+    SubType: 1hAxe
+    Buy: 20
+    Weight: 1200
+    Attack: 140
+    Range: 1
+    Jobs:
+      All: true
+    Locations:
+      Right_Hand: true
+    WeaponLevel: 4
+    EquipLevelMin: 1
+    Refineable: true
+    Script: |
+      bonus2 bSubRace,RC_DemiHuman,5;
+      bonus2 bSubRace,RC_Player_Human,5;
+      bonus3 bAddMonsterDropItem,517,RC_Brute,3000;
+  - Id: 6010
+    AegisName: Pickaxe
+    Name: Pickaxe
+    Type: Weapon
+    SubType: 1hAxe
+    Buy: 20
+    Weight: 1200
+    Attack: 140
+    Range: 1
+    Jobs:
+      All: true
+    Classes:
+      All_Third: true
+      Normal: true
+      Upper: true
+      Baby: true
+    Locations:
+      Right_Hand: true
+    WeaponLevel: 4
+    EquipLevelMin: 1
+    Refineable: true
+    Script: |
+      bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_Player_Human,5; bonus3 bAddMonsterDropItem,517,RC_Brute,3000;
+  - Id: 7193
+    AegisName: Germinating_Sprout
+    Name: Sprout
+    Type: Usable
+    Buy: 230
+    Weight: 10
+    Flags:
+      BuyingStore: true
+    Script: |
+      callfunc "plant_sys",1,7193;
+  - Id: 7194
+    AegisName: Soft_Leaf
+    Name: Soft Blade of Grass
+    Type: Usable
+    Buy: 400
+    Weight: 10
+    Flags:
+      BuyingStore: true
+    Script: |
+      callfunc "plant_sys",1,7194;
+  - Id: 30009
+    AegisName: Germinating_Sprout_
+    Name: Sprout
+    Type: Usable
+    Buy: 230
+    Weight: 10
+    Flags:
+      BuyingStore: true
+    Script: |
+      callfunc "plant_sys",1,7193;
   - Id: 30101
     AegisName: Commoner_Hood
     Name: Commoner Hood
@@ -101,6 +172,8 @@ Body:
     ArmorLevel: 1
     EquipLevelMin: 1
     View: 2301
+# THQ Quest Items
+#=============================================================
 #  - Id: 1998
 #    AegisName: Jeramiah's_Jur
 #    Name: Jeramiah's Jur

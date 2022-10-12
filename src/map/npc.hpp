@@ -217,6 +217,14 @@ struct npc_data {
 struct eri;
 extern struct eri *npc_sc_display_ers;
 
+extern DBMap* ev_db; // const char* event_name -> struct event_data*
+extern DBMap* npcname_db; // const char* npc_name -> struct npc_data*
+
+struct event_data {
+	struct npc_data *nd;
+	int pos;
+};
+
 #define START_NPC_NUM 110000000
 
 enum e_job_types
@@ -1425,6 +1433,13 @@ enum e_job_types
 	JT_STRANGE_B_SMITH1,
 	JT_STRONGER_B_SMTIH,
 
+	//Custons Farm Npcs
+	JT_NPC_CUSTOM_00 = 10363,
+	JT_NPC_CUSTOM_01 = 10364,
+	JT_NPC_CUSTOM_02 = 10365,
+	JT_NPC_CUSTOM_03 = 10366,
+	JT_NPC_CUSTOM_04 = 10367,
+
 	JT_NEW_NPC_3RD_END = 19999,
 	NPC_RANGE3_END, // Official: JT_NEW_NPC_3RD_END=19999
 
@@ -1541,6 +1556,8 @@ int npc_duplicate4instance(struct npc_data *snd, int16 m);
 int npc_instanceinit(struct npc_data* nd);
 int npc_instancedestroy(struct npc_data* nd);
 int npc_cashshop_buy(struct map_session_data *sd, t_itemid nameid, int amount, int points);
+
+int npc_unload_dup_sub(struct npc_data *nd, va_list args);
 
 void npc_shop_currency_type(struct map_session_data *sd, struct npc_data *nd, int cost[2], bool display);
 

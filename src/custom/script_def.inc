@@ -9,3 +9,5 @@
  **/
 
 //BUILDIN_DEF(example,""),
+BUILDIN_DEF(duplicatenpc, "ssssiii???"),
+BUILDIN_DEF(duplicateremove, "?"),
