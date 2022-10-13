@@ -1,0 +1,75 @@
+-	script	::mining_main	FAKE_NPC,{
+
+	//=== basic settings
+	set @tempo_main,1;	//time that will be born randomly on the map (in milliseconds). (default: 20min = 60000ms)
+	set @Tempo,20; 		//Time that can break another stone again. (in seconds). (default 20 seconds.)
+	set @equip,6010;	//necessary equipment
+	set @item,582; 		//reward item.
+	
+	//Checks
+	if(getequipid(EQI_HAND_L)==@equip || getequipid(EQI_HAND_R)==@equip){ set .@eqiON,1; }
+	if(!.@eqiON){ dispbottom "[ROCK] Your miner equipment is not equipped."; end; }
+	if(mining >= gettimetick(2)){ npctalk "You need to rest "+(mining-gettimetick(2))+" seconds to mine again."; end; }	
+	if(getd("."+strnpcinfo(2)+"")){ dispbottom "[ROCK]Someone is already using this stone."; end; } else setd("."+strnpcinfo(2)+"",1);
+	
+	//sets
+	setd(".mapa_"+strnpcinfo(2)+"$",strnpcinfo(4));
+	setd(".name_"+strnpcinfo(2)+"$",strnpcinfo(0));
+	
+	//  Possible rewards. (random)
+	switch(rand(8))
+	{
+		default: set @reward,0; break; 	//failure value (don't add id here)
+		case 1:	set @reward,501; break; //reward 1
+		case 2:	set @reward,501; break; //reward 2
+		case 3:	set @reward,501; break; //reward 3
+		case 4:	set @reward,501; break; //reward 4
+		case 5:	set @reward,501; break; //reward 5
+		case 6:	set @reward,501; break; //reward 6
+		case 7:	set @reward,501; break; //reward 7
+		case 8:	set @reward,501; break; //reward 8
+	}
+	
+	cutin "p_00",4; sleep2 100; specialeffect2 457; cutin "p_01",4; sleep2 200; cutin "p_02",4; sleep2 500; cutin "p_03",4; sleep2 800; cutin "p_04",4; sleep2 700;
+	
+	set @rand_fruta,rand(20);
+	getitem @item,@rand_fruta;
+	set mining,gettimetick(2)+@Tempo; specialeffect2 457;
+	cutin "p_00",4; sleep2 100; specialeffect2 457;
+	cutin "p_01",4; specialeffect2 457; sleep2 200;
+	cutin "p_02",4; specialeffect2 457; sleep2 500;
+	cutin "p_03",4; specialeffect2 457; sleep2 800;
+	cutin "p_04",4; sleep2 700;
+	specialeffect2 457;
+	cutin "p_00",4; sleep2 100; 
+	cutin "p_01",4; sleep2 200;
+	cutin "p_02",4; specialeffect2 457; sleep2 500;
+	cutin "p_03",4; specialeffect2 457; sleep2 800;
+	cutin "p_04",4; specialeffect2 457; sleep2 700;
+	cutin "p_05",4; specialeffect2 457; sleep2 500; 
+	specialeffect2 457;
+	classchange 25103,getd(".name_"+strnpcinfo(2)+"$"),bc_area;
+
+	if(!@reward){ cutin "p_fail",4; sleep2 500; cutin "",255; setd("."+strnpcinfo(2)+"",0); end; } else getitem @reward,1;
+	
+	cutin "p_06",4; specialeffect2 457; sleep2 1000; cutin "",255;
+	setd("."+strnpcinfo(2)+"",0);
+	disablenpc getd(".name_"+strnpcinfo(2)+"$");
+	sleep @tempo_main; 
+
+	//Dont touch.
+	while( !checkcell( getd(".mapa_"+strnpcinfo(2)+"$"),( .@x = rand( 1,400 ) ),( .@y = rand( 1,400 ) ),cell_chkpass ) ); 
+	movenpc getd(".name_"+strnpcinfo(2)+"$"),.@x,.@y;
+	enablenpc getd(".name_"+strnpcinfo(2)+"$"); end;
+}
+
+//Duplicate where you would like the stone to be.
+prontera,150,175,4	duplicate(mining_main)	#rock-prt01	25104
+prontera,151,177,4	duplicate(mining_main)	#rock-prt02	25104
+prontera,153,174,4	duplicate(mining_main)	#rock-prt03	25104
+morocc,158,187,4	duplicate(mining_main)	#rock-prt04	25104
+
+smurfs,32,179,4	duplicate(mining_main)	#rock-smrf01	25104
+smurfs,35,174,4	duplicate(mining_main)	#rock-smrf02	25104
+smurfs,24,165,4	duplicate(mining_main)	#rock-smrf03	25104
+smurfs,28,162,4	duplicate(mining_main)	#rock-smrf04	25104
