@@ -18,3 +18,4 @@
 //mymap-2
 
 smurfs  1250
+reb_map

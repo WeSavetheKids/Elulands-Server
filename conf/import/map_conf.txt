@@ -1,0 +1,2 @@
+map: smurfs
+map: reb_map
