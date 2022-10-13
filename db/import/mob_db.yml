@@ -79,7 +79,93 @@ Header:
   Type: MOB_DB
   Version: 3
 
-#Body:
+Body:
+  - Id: 25103
+    AegisName: MINING1
+    Name: mining 1
+    Level: 1
+    Hp: 5
+    Attack: 1
+    Attack2: 1
+    Defense: 100
+    MagicDefense: 99
+    AttackRange: 1
+    SkillRange: 7
+    ChaseRange: 12
+    Size: Small
+    Race: Plant
+    Element: Earth
+    ElementLevel: 1
+    WalkSpeed: 1000
+    AttackDelay: 1
+    AttackMotion: 1
+    DamageMotion: 1
+    Modes:
+      IgnoreMagic: true
+      IgnoreMelee: true
+      IgnoreMisc: true
+      IgnoreRanged: true
+    Drops:
+      - Item: Red_Herb
+        Rate: 5500
+      - Item: Flower
+        Rate: 1000
+      - Item: Shoot
+        Rate: 1000
+      - Item: Stem
+        Rate: 500
+      - Item: Poison_Herb_Rantana
+        Rate: 300
+      - Item: Fluff
+        Rate: 500
+      - Item: Ment
+        Rate: 50
+      - Item: Centimental_Flower
+        Rate: 2
+        StealProtected: true
+  - Id: 25104
+    AegisName: MINING2
+    Name: mining 2
+    Level: 1
+    Hp: 5
+    Attack: 1
+    Attack2: 1
+    Defense: 100
+    MagicDefense: 99
+    AttackRange: 1
+    SkillRange: 7
+    ChaseRange: 12
+    Size: Small
+    Race: Plant
+    Element: Earth
+    ElementLevel: 1
+    WalkSpeed: 1000
+    AttackDelay: 1
+    AttackMotion: 1
+    DamageMotion: 1
+    Modes:
+      IgnoreMagic: true
+      IgnoreMelee: true
+      IgnoreMisc: true
+      IgnoreRanged: true
+    Drops:
+      - Item: Red_Herb
+        Rate: 5500
+      - Item: Flower
+        Rate: 1000
+      - Item: Shoot
+        Rate: 1000
+      - Item: Stem
+        Rate: 500
+      - Item: Poison_Herb_Rantana
+        Rate: 300
+      - Item: Fluff
+        Rate: 500
+      - Item: Ment
+        Rate: 50
+      - Item: Centimental_Flower
+        Rate: 2
+        StealProtected: true
 # eAthena Dev Team
 #=============================================================
 #  - Id: 1900
