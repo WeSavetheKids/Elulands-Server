@@ -1,4 +1,1 @@
-map: smurfs
-map: reb_map
-
 import: conf/import/elu_map.txt
