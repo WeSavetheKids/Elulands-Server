@@ -19,3 +19,16 @@
 
 smurfs  1250
 reb_map
+lumen_isle
+death_town
+death_in
+auda_city1
+egg1
+egg_in
+auch
+auch_city
+auch_dun01
+auch_dun02
+auch_fld01
+auch_fld02
+terminus
