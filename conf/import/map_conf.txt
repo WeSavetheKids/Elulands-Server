@@ -1,1 +1,17 @@
+map:smurfs
+map:reb_map
+map:lumen_isle
+map:death_town
+map:death_in
+map:auda_city1
+map:egg1
+map:egg_in
+map:auch
+map:auch_city
+map:auch_dun01
+map:auch_dun02
+map:auch_fld01
+map:auch_fld02
+map:terminus
+
 import: conf/import/elu_map.txt
