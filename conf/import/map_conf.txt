@@ -83,4 +83,20 @@ map: ufc_pvp3
 map: miku_stage
 map: woe_map
 
+map: land_01
+map: land_02
+map: land_03
+map: land_04
+map: land_05
+map: land_06
+map: land_07
+map: land_08
+map: land_09
+map: land_10
+map: land_11
+map: land_12
+map: land_13
+map: land_14
+map: land_15
+map: land_16
 import: conf/import/elu_map.txt
